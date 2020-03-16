@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Windows.Forms;
+using System.Management;
 using System.Security.Cryptography;
 
 namespace USB_Backup {
@@ -85,7 +86,7 @@ namespace USB_Backup {
             using (SHA256 sha256 = new SHA256CryptoServiceProvider()) {
                 if (getKey) {
                     string key = string.Empty;
-                    foreach (var t in Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes("USB Backup!")))) {
+                    foreach (var t in Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(GetUUID())))) {
                         key += t;
                         if (key.Length >= 32) {
                             break;
@@ -104,6 +105,17 @@ namespace USB_Backup {
                     return Encoding.UTF8.GetBytes(IV);
                 }
             }
+        }
+
+        private string GetUUID() {
+            string code = null;
+            SelectQuery query = new SelectQuery("select * from Win32_ComputerSystemProduct");
+            using (ManagementObjectSearcher searcher = new ManagementObjectSearcher(query)) {
+                foreach (var item in searcher.Get()) {
+                    using (item) code = item["UUID"].ToString();
+                }
+            }
+            return code;
         }
     }
 }
