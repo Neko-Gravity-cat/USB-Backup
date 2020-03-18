@@ -42,15 +42,13 @@
             // 
             // DeviceUI
             // 
-            this.DeviceUI.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.DeviceUI.Controls.Add(this.ListBorder);
             this.DeviceUI.Controls.Add(this.Refresh);
             this.DeviceUI.Controls.Add(this.label1);
             this.DeviceUI.Controls.Add(this.panel1);
             this.DeviceUI.Location = new System.Drawing.Point(12, 42);
             this.DeviceUI.Name = "DeviceUI";
-            this.DeviceUI.Size = new System.Drawing.Size(281, 211);
+            this.DeviceUI.Size = new System.Drawing.Size(300, 211);
             this.DeviceUI.TabIndex = 6;
             // 
             // ListBorder
@@ -59,7 +57,7 @@
             this.ListBorder.Controls.Add(this.DeviceList);
             this.ListBorder.Location = new System.Drawing.Point(0, 32);
             this.ListBorder.Name = "ListBorder";
-            this.ListBorder.Size = new System.Drawing.Size(281, 142);
+            this.ListBorder.Size = new System.Drawing.Size(300, 142);
             this.ListBorder.TabIndex = 6;
             // 
             // DeviceList
@@ -74,8 +72,9 @@
             "*There\'s no device here*"});
             this.DeviceList.Location = new System.Drawing.Point(10, 8);
             this.DeviceList.Name = "DeviceList";
-            this.DeviceList.Size = new System.Drawing.Size(261, 126);
+            this.DeviceList.Size = new System.Drawing.Size(280, 126);
             this.DeviceList.TabIndex = 2;
+            this.DeviceList.DoubleClick += new System.EventHandler(this.DeviceList_DoubleClick);
             // 
             // Refresh
             // 
@@ -85,7 +84,7 @@
             this.Refresh.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(172)))), ((int)(((byte)(193)))));
             this.Refresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Refresh.ForeColor = System.Drawing.Color.White;
-            this.Refresh.Location = new System.Drawing.Point(206, 180);
+            this.Refresh.Location = new System.Drawing.Point(225, 180);
             this.Refresh.Name = "Refresh";
             this.Refresh.Size = new System.Drawing.Size(75, 31);
             this.Refresh.TabIndex = 5;
@@ -109,7 +108,7 @@
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(99)))), ((int)(((byte)(110)))), ((int)(((byte)(114)))));
             this.panel1.Location = new System.Drawing.Point(0, 25);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(281, 1);
+            this.panel1.Size = new System.Drawing.Size(299, 1);
             this.panel1.TabIndex = 3;
             // 
             // PanelTop
@@ -121,7 +120,7 @@
             this.PanelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.PanelTop.Location = new System.Drawing.Point(0, 0);
             this.PanelTop.Name = "PanelTop";
-            this.PanelTop.Size = new System.Drawing.Size(305, 32);
+            this.PanelTop.Size = new System.Drawing.Size(324, 32);
             this.PanelTop.TabIndex = 5;
             // 
             // Title
@@ -144,7 +143,7 @@
             this.MinimizeApp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.MinimizeApp.Font = new System.Drawing.Font("Microsoft JhengHei", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MinimizeApp.ForeColor = System.Drawing.Color.White;
-            this.MinimizeApp.Location = new System.Drawing.Point(203, 0);
+            this.MinimizeApp.Location = new System.Drawing.Point(222, 0);
             this.MinimizeApp.Margin = new System.Windows.Forms.Padding(0);
             this.MinimizeApp.Name = "MinimizeApp";
             this.MinimizeApp.Size = new System.Drawing.Size(51, 32);
@@ -161,7 +160,7 @@
             this.CloseApp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.CloseApp.Font = new System.Drawing.Font("Microsoft JhengHei", 9.25F);
             this.CloseApp.ForeColor = System.Drawing.Color.White;
-            this.CloseApp.Location = new System.Drawing.Point(254, 0);
+            this.CloseApp.Location = new System.Drawing.Point(273, 0);
             this.CloseApp.Name = "CloseApp";
             this.CloseApp.Size = new System.Drawing.Size(51, 32);
             this.CloseApp.TabIndex = 0;
@@ -181,7 +180,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(39)))), ((int)(((byte)(46)))));
-            this.ClientSize = new System.Drawing.Size(305, 266);
+            this.ClientSize = new System.Drawing.Size(324, 266);
             this.Controls.Add(this.DeviceUI);
             this.Controls.Add(this.PanelTop);
             this.Font = new System.Drawing.Font("Microsoft JhengHei", 8.25F);

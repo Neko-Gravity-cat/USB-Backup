@@ -7,6 +7,9 @@ using System.Windows.Forms;
 
 namespace USB_Backup {
     public partial class Main : Form {
+        readonly List<DriveInfo> driveInfos = new List<DriveInfo>();
+        readonly Backup backup = new Backup();
+        readonly Queue queue = new Queue();
 
         public Main() {
             InitializeComponent();
@@ -14,6 +17,7 @@ namespace USB_Backup {
 
         private void Main_Load(object sender, EventArgs e) {
             RefreshList();
+            queue.main = this;
         }
 
         private void Main_Click(object sender, EventArgs e) {
@@ -37,11 +41,15 @@ namespace USB_Backup {
             RefreshList();
         }
 
-        private async void RefreshList() {
+        private void DeviceList_DoubleClick(object sender, EventArgs e) {
+            queue.QueueAdd(driveInfos[DeviceList.SelectedIndex]);
+        }
+
+        public async void RefreshList() {
             List<string> device = new List<string>();
             try {
                 ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
-                await Task.Delay(1);    // Delay 1ms to keep "searcher.Get()" from getting exception.
+                await Task.Delay(5);    // Delay 1ms to keep "searcher.Get()" from getting exception.
                 // Get removable and fixed drives letter which are using USB.
                 foreach (ManagementObject queryObj in searcher.Get()) {
                     if (queryObj["InterfaceType"].ToString() == "USB" || queryObj["InterfaceType"].ToString() == "SCSI") {
@@ -54,17 +62,30 @@ namespace USB_Backup {
                 }
             }
             catch (Exception ex) {
+                Console.WriteLine("Device search error");
                 Console.WriteLine(ex);
             }
             DeviceList.Items.Clear();
+            driveInfos.Clear();
             foreach (DriveInfo d in DriveInfo.GetDrives()) {
                 if (device.Contains(d.Name)) {
+                    driveInfos.Add(d);
                     string volumeLabel = d.VolumeLabel;
                     if (volumeLabel.Length >= 18) {
                         volumeLabel = volumeLabel.Remove(15, 3) + "...";
                     }
                     long used = d.TotalSize - d.AvailableFreeSpace;
-                    DeviceList.Items.Add(string.Format("{0, -3} {1, -15} {2, 12}", d.Name, volumeLabel, UnitConversion(used) + " used"));
+                    string state;
+                    if (queue.Done.FindIndex(a => a.Name == d.Name) >= 0) {
+                        state = "✔";
+                    }
+                    else if (queue.Working.FindIndex(a => a.Name == d.Name) >= 0) {
+                        state = "●";
+                    }
+                    else {
+                        state = "◆";
+                    }
+                    DeviceList.Items.Add(string.Format("{0, -3} {1, -15} {2, 12} {3, 1}", d.Name, volumeLabel, UnitConversion(used) + " used", state));
                 }
             }
             if (DeviceList.Items.Count == 0) {
@@ -75,7 +96,7 @@ namespace USB_Backup {
         private string UnitConversion(long space) {
             float result;
             if (space / (1024 * 1024 * 1024) > 1) {
-                result = space / (1024 * 1024);
+                result = space / (1024 * 1024 * 1024);
                 return $"{result} GB";
             }
             else if (space / (1024 * 1024) > 1) {
@@ -100,6 +121,7 @@ namespace USB_Backup {
                     switch (m.WParam.ToInt32()) {
                         // When a device is arrival.
                         case DeviceArrival:
+                            queue.DoneClear();
                             RefreshList();
                             break;
                         // When a device is being removed completely.
@@ -110,6 +132,7 @@ namespace USB_Backup {
                 }
             }
             catch (Exception ex) {
+                Console.WriteLine("WndProc error");
                 Console.WriteLine(ex.Message);
             }
             base.WndProc(ref m);
