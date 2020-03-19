@@ -5,14 +5,13 @@ using System.Collections.Generic;
 namespace USB_Backup {
 
     public class Backup {
-        public Main main;
         private static bool _isRunning;
         public bool IsRunning {
             get => _isRunning;
             set => _isRunning = value;
         }
 
-        public async void Run(DriveInfo drive) {
+        public async void Run(DriveInfo drive, Main main) {
             Console.WriteLine($@"Running ""{drive.Name}""");
             Queue queue = new Queue();
             IsRunning = true;
@@ -40,7 +39,7 @@ namespace USB_Backup {
                 }
             }
             catch (Exception e) {
-                Console.WriteLine("Backup error");
+                Console.WriteLine("Main backup error");
                 Console.WriteLine(e);
                 hasError = true;
             }
@@ -52,9 +51,9 @@ namespace USB_Backup {
             }
             queue.Working.Clear();
             queue.Done.Add(drive);
-            queue.RunNext();
             IsRunning = false;
             main.RefreshList();
+            queue.RunNext();
         }
     }
 
@@ -82,10 +81,9 @@ namespace USB_Backup {
         }
 
         public void RunNext() {
-            backup.main = main;
             if (queued.Count > 0 && !backup.IsRunning) {
-                backup.Run(queued[0]);
-                queued.RemoveAt(0);
+                backup.Run(queued[queued.Count - 1], main);
+                queued.RemoveAt(queued.Count - 1);
             }
         }
 

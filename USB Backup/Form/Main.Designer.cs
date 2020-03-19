@@ -186,6 +186,8 @@
             this.Font = new System.Drawing.Font("Microsoft JhengHei", 8.25F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Main";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "Main";
             this.Load += new System.EventHandler(this.Main_Load);
             this.Click += new System.EventHandler(this.Main_Click);

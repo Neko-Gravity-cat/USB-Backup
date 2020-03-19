@@ -1,23 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Management;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace USB_Backup {
     public partial class Main : Form {
+
         readonly List<DriveInfo> driveInfos = new List<DriveInfo>();
-        readonly Backup backup = new Backup();
         readonly Queue queue = new Queue();
+
+        public Main(string[] args) {
+            InitializeComponent();
+#if DEBUG
+            if (args.Contains("Console")) {
+                ConsoleControl consoleControl = new ConsoleControl();
+                Task.Run(() => consoleControl.ReadConsole(this));
+            }
+#endif
+        }
 
         public Main() {
             InitializeComponent();
         }
 
         private void Main_Load(object sender, EventArgs e) {
-            RefreshList();
             queue.main = this;
+            RefreshList();
         }
 
         private void Main_Click(object sender, EventArgs e) {
@@ -45,8 +56,19 @@ namespace USB_Backup {
             queue.QueueAdd(driveInfos[DeviceList.SelectedIndex]);
         }
 
-        public async void RefreshList() {
+        public async void RefreshList(bool newInput = false) {
+            DeviceList.Items.Clear();
+            foreach (string d in await GetList(newInput)) {
+                DeviceList.Items.Add(d);
+            }
+            if (DeviceList.Items.Count <= 0) {
+                DeviceList.Items.Add("*There's no device here*");
+            }
+        }
+
+        public async Task<List<string>> GetList(bool newInput = false) {
             List<string> device = new List<string>();
+            List<string> list = new List<string>();
             try {
                 ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
                 await Task.Delay(5);    // Delay 1ms to keep "searcher.Get()" from getting exception.
@@ -65,8 +87,8 @@ namespace USB_Backup {
                 Console.WriteLine("Device search error");
                 Console.WriteLine(ex);
             }
-            DeviceList.Items.Clear();
             driveInfos.Clear();
+            list.Clear();
             foreach (DriveInfo d in DriveInfo.GetDrives()) {
                 if (device.Contains(d.Name)) {
                     driveInfos.Add(d);
@@ -84,13 +106,18 @@ namespace USB_Backup {
                     }
                     else {
                         state = "◆";
+                        if (newInput && Properties.Settings.Default.Auto) {
+                            queue.QueueAdd(d);
+                        }
                     }
-                    DeviceList.Items.Add(string.Format("{0, -3} {1, -15} {2, 12} {3, 1}", d.Name, volumeLabel, UnitConversion(used) + " used", state));
+                    string info = string.Format("{0, -3} {1, -15} {2, 12} {3, 1}", d.Name, volumeLabel, UnitConversion(used) + " used", state);
+                    list.Add(string.Format(info));
                 }
             }
-            if (DeviceList.Items.Count == 0) {
-                DeviceList.Items.Add("*There's no device here*");
+            if (list.Count == 0) {
+                list.Add("*There's no device here*");
             }
+            return list;
         }
 
         private string UnitConversion(long space) {
