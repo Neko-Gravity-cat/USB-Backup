@@ -14,11 +14,9 @@ namespace USB_Backup {
 
         [STAThread]
         static void Main(string[] args) {
-            #if !DEBUG
-            if (!args.Contains("Console")) {
+            if (!args.Contains("Console") && !System.Diagnostics.Debugger.IsAttached) {
                 FreeConsole();
             }
-#endif
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Main(args));

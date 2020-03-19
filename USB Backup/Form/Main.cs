@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Management;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace USB_Backup {
     public partial class Main : Form {
@@ -14,12 +14,10 @@ namespace USB_Backup {
 
         public Main(string[] args) {
             InitializeComponent();
-#if DEBUG
-            if (args.Contains("Console")) {
+            if (args.Contains("Console") || System.Diagnostics.Debugger.IsAttached) {
                 ConsoleControl consoleControl = new ConsoleControl();
                 Task.Run(() => consoleControl.ReadConsole(this));
             }
-#endif
         }
 
         public Main() {

@@ -29,7 +29,12 @@ namespace USB_Backup {
                             break;
                         case "list":
                             foreach (string i in main.GetList().Result) {
-                                Console.WriteLine(i.Remove(32, 2));
+                                if (i.Length > 25) {
+                                    Console.WriteLine(i.Remove(32, 2));
+                                }
+                                else {
+                                    Console.WriteLine(i);
+                                }
                             }
                             break;
                         default:
