@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Text;
-using System.Management;
 using System.Windows.Forms;
 using System.Security.Cryptography;
 
 namespace USB_Backup {
     public partial class SettingsPage : Form {
+        readonly Encryption encryption = new Encryption();
 
         public SettingsPage() {
             InitializeComponent();
@@ -13,7 +12,7 @@ namespace USB_Backup {
 
         private void SettingsPage_Load(object sender, EventArgs e) {
             Password.MaxLength = 29;
-            Password.Text = PasswordRead();
+            Password.Text = encryption.PasswordRead();
         }
 
         private void SettingsPage_FormClosing(object sender, FormClosingEventArgs e) {
@@ -40,6 +39,7 @@ namespace USB_Backup {
                 Password.PasswordChar = '●';
             }
         }
+
         private void Reset_Click(object sender, EventArgs e) {
             string resetMessage = "Are you sure you want to reset all the settings?\r\n(Expect password)";
             if (MessageBox.Show(resetMessage, "Reset Settings", MessageBoxButtons.OKCancel) == DialogResult.OK) {
@@ -55,67 +55,11 @@ namespace USB_Backup {
 
         private void PasswordSave() {
             if (Password.Text.Trim() != string.Empty) {
-                Encryption encryption = new Encryption();
-                using (Aes aes = Aes.Create()) {
-                    aes.Key = GetKeyIV(true);
-                    aes.IV = GetKeyIV(false);
-                    Properties.Settings.Default.Password = Convert.ToBase64String(encryption.EncryptStringToBytes_Aes(Password.Text.Trim(), aes.Key, aes.IV));
-                }
+                Properties.Settings.Default.Password = Convert.ToBase64String(encryption.EncryptStringToBytes_Aes(Password.Text.Trim()));
             }
             else {
                 Properties.Settings.Default.Password = string.Empty;
             }
-        }
-
-        private string PasswordRead() {
-            if (Properties.Settings.Default.Password.Trim() != string.Empty) {
-                Encryption encryption = new Encryption();
-                using (Aes aes = Aes.Create()) {
-                    aes.Key = GetKeyIV(true);
-                    aes.IV = GetKeyIV(false);
-                    byte[] password = Convert.FromBase64String(Properties.Settings.Default.Password);
-                    return encryption.DecryptStringFromBytes_Aes(password, aes.Key, aes.IV);
-                }
-            }
-            else {
-                return string.Empty;
-            }
-        }
-
-        private byte[] GetKeyIV(bool getKey) {
-            using (SHA256 sha256 = new SHA256CryptoServiceProvider()) {
-                if (getKey) {
-                    string key = string.Empty;
-                    foreach (var t in Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(GetUUID())))) {
-                        key += t;
-                        if (key.Length >= 32) {
-                            break;
-                        }
-                    }
-                    return Encoding.UTF8.GetBytes(key);
-                }
-                else {
-                    string IV = string.Empty;
-                    foreach (var t in Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes("Backup your USB devices!")))) {
-                        IV += t;
-                        if (IV.Length >= 16) {
-                            break;
-                        }
-                    }
-                    return Encoding.UTF8.GetBytes(IV);
-                }
-            }
-        }
-
-        private string GetUUID() {
-            string code = null;
-            SelectQuery query = new SelectQuery("select * from Win32_ComputerSystemProduct");
-            using (ManagementObjectSearcher searcher = new ManagementObjectSearcher(query)) {
-                foreach (var item in searcher.Get()) {
-                    using (item) code = item["UUID"].ToString();
-                }
-            }
-            return code;
         }
     }
 }

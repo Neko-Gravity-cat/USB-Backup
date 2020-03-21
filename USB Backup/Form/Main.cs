@@ -14,7 +14,7 @@ namespace USB_Backup {
 
         public Main(string[] args) {
             InitializeComponent();
-            if (args.Contains("Console") || System.Diagnostics.Debugger.IsAttached) {
+            if (!args.Contains("NOconsole") || System.Diagnostics.Debugger.IsAttached) {
                 ConsoleControl consoleControl = new ConsoleControl();
                 Task.Run(() => consoleControl.ReadConsole(this));
             }
