@@ -48,7 +48,6 @@ namespace USB_Backup {
         public string DecryptStringFromBytes_Aes(byte[] original) {
             byte[] key = GetKeyIV(true);
             byte[] IV = GetKeyIV(false);
-
             // Check arguments.
             if (original == null || original.Length <= 0) {
                 throw new ArgumentNullException("Original");

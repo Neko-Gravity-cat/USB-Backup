@@ -58,7 +58,14 @@ namespace USB_Backup {
             DeviceList.Items.Clear();
             foreach (string d in await GetList(newInput)) {
                 DeviceList.Items.Add(d);
+                if (d.Length > 25) {
+                    Console.WriteLine(d.Remove(32, 2));
+                }
+                else {
+                    Console.WriteLine(d);
+                }
             }
+            Console.WriteLine(string.Empty);
             if (DeviceList.Items.Count <= 0) {
                 DeviceList.Items.Add("*There's no device here*");
             }

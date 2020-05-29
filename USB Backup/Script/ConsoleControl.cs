@@ -17,64 +17,62 @@ namespace USB_Backup {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(string.Empty);
             while (consoleOn) {
-                string input = Console.ReadLine();
-                if (input.StartsWith("-")) {
-                    input = input.Trim().Substring(1);
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    switch (input) {
-                        case "close console":
-                            Console.WriteLine("Console closing...");
-                            FreeConsole();
-                            consoleOn = false;
-                            break;
-                        case "close app":
-                            Application.Exit();
-                            break;
-                        case "hide":
-                            Console.WriteLine("Application hiding...");
-                            main.Hide();
-                            break;
-                        case "list":
-                            foreach (string i in main.GetList().Result) {
-                                if (i.Length > 25) {
-                                    Console.WriteLine(i.Remove(32, 2));
-                                }
-                                else {
-                                    Console.WriteLine(i);
-                                }
-                            }
-                            break;
-                        case "set password":
-                            string getPassword = GetAndComfirmPassword();
-                            if (getPassword != string.Empty) {
-                                Properties.Settings.Default.Password = Convert.ToBase64String(encryption.EncryptStringToBytes_Aes(getPassword));
+                string input = Console.ReadLine().Trim();
+                Console.ForegroundColor = ConsoleColor.Green;
+                switch (input) {
+                    case "close console":
+                        Console.WriteLine("Console closing...");
+                        FreeConsole();
+                        consoleOn = false;
+                        break;
+                    case "close app":
+                        Application.Exit();
+                        break;
+                    case "hide":
+                        Console.WriteLine("Application hiding...");
+                        main.Hide();
+                        break;
+                    case "list":
+                        foreach (string i in main.GetList().Result) {
+                            if (i.Length > 25) {
+                                Console.WriteLine(i.Remove(32, 2));
                             }
                             else {
-                                Properties.Settings.Default.Password = string.Empty;
+                                Console.WriteLine(i);
                             }
-                            break;
-                        case "show password":
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            if (encryption.PasswordRead() != string.Empty) {
-                                Console.WriteLine(encryption.PasswordRead());
-                            }
-                            else {
-                                Console.WriteLine("*Empty*");
-                            }
-                            Console.ForegroundColor = ConsoleColor.White;
-                            break;
-                        default:
-                            Invalid();
-                            break;
-                    }
-                    Console.ForegroundColor = ConsoleColor.White;
+                        }
+                        break;
+                    case "set password":
+                        string getPassword = GetAndComfirmPassword();
+                        if (getPassword != string.Empty) {
+                            Properties.Settings.Default.Password = Convert.ToBase64String(encryption.EncryptStringToBytes_Aes(getPassword));
+                        }
+                        else {
+                            Properties.Settings.Default.Password = string.Empty;
+                        }
+                        break;
+                    case "show password":
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        if (encryption.PasswordRead() != string.Empty) {
+                            Console.WriteLine(encryption.PasswordRead());
+                        }
+                        else {
+                            Console.WriteLine("*Empty*");
+                        }
+                        Console.ForegroundColor = ConsoleColor.White;
+                        break;
+                    case "?":
+                        string[] function = new string[] { "close console", "close app", "hide", "list", "set password", "show password" };
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        foreach (string f in function) {
+                            Console.WriteLine(f);
+                        }
+                        break;
+                    default:
+                        Invalid();
+                        break;
                 }
-                else if (input == "?") {
-
-                }
-                else {
-                    Invalid();
-                }
+                Console.ForegroundColor = ConsoleColor.White;
                 if (!consoleOn) {
                     break;
                 }
@@ -89,7 +87,7 @@ namespace USB_Backup {
         }
 
         private string GetAndComfirmPassword() {
-            GetPassword:
+        GetPassword:
             string password1 = GetConsolePassword();
             string password2 = GetConsolePassword();
             if (password1 != password2) {
@@ -109,7 +107,7 @@ namespace USB_Backup {
             while (true) {
                 ConsoleKeyInfo cki = Console.ReadKey(true);
                 if (cki.Key == ConsoleKey.Enter) {
-                    if(sb.ToString().Trim() == string.Empty) {
+                    if (sb.ToString().Trim() == string.Empty) {
                         Console.WriteLine("*Empty*");
                     }
                     else if (!second) {

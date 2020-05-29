@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using Ionic.Zip;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace USB_Backup {
 
@@ -18,8 +21,8 @@ namespace USB_Backup {
             queue.Working.Add(drive);
             main.RefreshList();
             bool hasError = false;
+            string destination = Path.Combine(Properties.Settings.Default.Path, drive.VolumeLabel);
             try {
-                string destination = Path.Combine(Properties.Settings.Default.Path, drive.VolumeLabel);
                 Directory.CreateDirectory(destination);
                 foreach (string filename in Directory.EnumerateFiles(drive.Name, "*", SearchOption.AllDirectories)) {
                     try {
@@ -43,6 +46,18 @@ namespace USB_Backup {
                 Console.WriteLine(e);
                 hasError = true;
             }
+            if (Properties.Settings.Default.Compress) {
+                Console.WriteLine("Compress start");
+                try {
+                    await Task.Run(() => Compress(drive, destination));
+                }
+                catch (Exception e) {
+                    Console.WriteLine("Compress error");
+                    Console.WriteLine(e);
+                    hasError = true;
+                }
+                Console.WriteLine("Compress finished");
+            }
             if (hasError) {
                 Console.WriteLine($@"Running finished ""{drive.Name}"" (has error)");
             }
@@ -54,6 +69,20 @@ namespace USB_Backup {
             IsRunning = false;
             main.RefreshList();
             queue.RunNext();
+        }
+
+        private void Compress(DriveInfo drive, string destination) {
+            using (ZipFile zip = new ZipFile()) {
+                Encryption encryption = new Encryption();
+                string password = encryption.PasswordRead();
+                if (!string.IsNullOrEmpty(password)) {
+                    zip.Password = password;
+                }
+                zip.Encryption = EncryptionAlgorithm.WinZipAes256;
+                zip.AlternateEncoding = Encoding.UTF8;
+                zip.AddDirectory(destination);
+                zip.Save(Path.Combine(Properties.Settings.Default.Path, drive.VolumeLabel + ".zip"));
+            }
         }
     }
 
